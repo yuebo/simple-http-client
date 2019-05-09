@@ -2,7 +2,6 @@ package com.eappcat.http.client;
 
 import okhttp3.Interceptor;
 import okhttp3.Response;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -23,7 +22,7 @@ public class HttpClientInterceptor implements Interceptor, ApplicationContextAwa
     public Response intercept(Chain chain) throws IOException {
         Class c=(Class)chain.request().tag();
         SimpleClient simpleClient= AnnotationUtils.findAnnotation(c,SimpleClient.class);
-        Class<? extends InterceptorAdapter> interceptor=simpleClient.interceptor();
+        Class<? extends HttpInterceptor> interceptor=simpleClient.interceptor();
         if(applicationContext.getBeansOfType(interceptor).isEmpty()){
             return chain.proceed(chain.request());
         }
