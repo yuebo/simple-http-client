@@ -1,6 +1,6 @@
 声明式Http客户端
 -------
-一个用OKHttp实现的类似于Feign Client的声明式客户端。
+一个用OKHttp实现的类似于Feign Client的声明式客户端，支持动态设置拦截器，支持cookie和baseUrl配置。
 
 示例代码
 ```java

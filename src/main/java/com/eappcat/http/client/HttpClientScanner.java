@@ -11,9 +11,9 @@ import org.springframework.core.type.filter.AssignableTypeFilter;
 
 import java.util.Set;
 
-public class Scanner extends ClassPathBeanDefinitionScanner {
+public class HttpClientScanner extends ClassPathBeanDefinitionScanner {
 
-    public Scanner(BeanDefinitionRegistry registry) {
+    public HttpClientScanner(BeanDefinitionRegistry registry) {
         super(registry);
     }
     public void registerDefaultFilters() {

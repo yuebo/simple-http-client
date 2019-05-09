@@ -3,6 +3,9 @@ package com.eappcat.http.client;
 import com.alibaba.fastjson.JSONObject;
 import okhttp3.*;
 import org.apache.commons.beanutils.BeanMap;
+import org.springframework.beans.factory.config.BeanExpressionContext;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.expression.StandardBeanExpressionResolver;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,15 +14,19 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 public class SimpleHttpClientProxy implements InvocationHandler {
     private static final String PATH_SEPARATOR ="/";
 
     private OkHttpClient client;
+    private ConfigurableBeanFactory configurableBeanFactory;
 
-    public SimpleHttpClientProxy(OkHttpClient client){
+    public SimpleHttpClientProxy(OkHttpClient client,ConfigurableBeanFactory configurableBeanFactory){
         this.client=client;
+        this.configurableBeanFactory=configurableBeanFactory;
     }
 
 
@@ -32,6 +39,10 @@ public class SimpleHttpClientProxy implements InvocationHandler {
         }
         SimpleClient simpleClient=AnnotationUtils.findAnnotation(method.getDeclaringClass(),SimpleClient.class);
         String baseUrl=simpleClient.baseUrl();
+        //使用Spring EL读取url
+        StandardBeanExpressionResolver resolver=new StandardBeanExpressionResolver();
+        BeanExpressionContext context=new BeanExpressionContext(configurableBeanFactory,null);
+        baseUrl=String.valueOf(resolver.evaluate(baseUrl,context));
 
         //解析RequestMapping
         RequestMapping requestMapping=AnnotationUtils.findAnnotation(method,RequestMapping.class);
@@ -128,10 +139,11 @@ public class SimpleHttpClientProxy implements InvocationHandler {
             }
             i++;
         }
-
+        builder.tag(method.getDeclaringClass());
         builder.method(requestMethod.toString(),body);
 
         Call call=client.newCall(builder.build());
+
         Response response=call.execute();
 
         if(response.isSuccessful()){
@@ -150,22 +162,29 @@ public class SimpleHttpClientProxy implements InvocationHandler {
 
     private okhttp3.RequestBody toFormData(Object arg) {
         MultipartBody.Builder builder=new MultipartBody.Builder();
-        BeanMap beanMap=new BeanMap(arg);
+        Map beanMap=convertToMap(arg);
         for (Object key:beanMap.keySet()){
-            if(!key.equals("class")){
-                builder.addFormDataPart(key.toString(),beanMap.getOrDefault(key,"").toString());
-            }
+            builder.addFormDataPart(key.toString(),beanMap.getOrDefault(key,"").toString());
         }
         return builder.build();
     }
 
+    private Map convertToMap(Object arg) {
+        if(arg instanceof Map){
+            return (Map)arg;
+        }
+        Map test=new HashMap();
+        BeanMap map=new BeanMap(arg);
+        test.putAll(map);
+        test.remove("class");
+        return test;
+    }
+
     private okhttp3.RequestBody toUrlEncoded(Object arg) {
         FormBody.Builder builder=new FormBody.Builder();
-        BeanMap beanMap=new BeanMap(arg);
+        Map beanMap=convertToMap(arg);
         for (Object key:beanMap.keySet()){
-            if(!key.equals("class")){
-                builder.add(key.toString(),beanMap.getOrDefault(key,"").toString());
-            }
+            builder.add(key.toString(),beanMap.getOrDefault(key,"").toString());
         }
         return builder.build();
     }
