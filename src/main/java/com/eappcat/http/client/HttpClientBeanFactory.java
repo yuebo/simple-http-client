@@ -1,16 +1,16 @@
 package com.eappcat.http.client;
 
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.FactoryBean;
-
 
 import java.lang.reflect.Proxy;
 
 public class HttpClientBeanFactory implements FactoryBean {
-    private SimpleHttpClientProxy simpleHttpClientProxy;
+    private BeanFactory beanFactory;
     private Class clientClass;
 
-    public void setSimpleHttpClientProxy(SimpleHttpClientProxy simpleHttpClientProxy) {
-        this.simpleHttpClientProxy = simpleHttpClientProxy;
+    public void setBeanFactory(BeanFactory beanFactory) {
+        this.beanFactory = beanFactory;
     }
 
     public void setClientClass(Class clientClass) {
@@ -19,7 +19,7 @@ public class HttpClientBeanFactory implements FactoryBean {
 
     @Override
     public Object getObject() throws Exception {
-        Object proxy=Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),new Class[]{clientClass},simpleHttpClientProxy);
+        Object proxy=Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),new Class[]{clientClass},beanFactory.getBean(SimpleHttpClientProxy.class));
         return proxy;
     }
 

@@ -7,7 +7,6 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
-import org.springframework.core.type.filter.AssignableTypeFilter;
 
 import java.util.Set;
 
@@ -23,9 +22,8 @@ public class HttpClientScanner extends ClassPathBeanDefinitionScanner {
         Set<BeanDefinitionHolder> beanDefinitions =   super.doScan(basePackages);
         for (BeanDefinitionHolder holder : beanDefinitions) {
             GenericBeanDefinition definition = (GenericBeanDefinition) holder.getBeanDefinition();
-
             definition.getPropertyValues().add("clientClass", definition.getBeanClassName());
-            definition.getPropertyValues().add("simpleHttpClientProxy", ((ConfigurableListableBeanFactory)getRegistry()).getBean(SimpleHttpClientProxy.class));
+            definition.getPropertyValues().add("beanFactory", (ConfigurableListableBeanFactory)getRegistry());
             definition.setBeanClass(HttpClientBeanFactory.class);
         }
         return beanDefinitions;
