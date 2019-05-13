@@ -2,7 +2,6 @@ package com.eappcat.http.client.es;
 
 import com.alibaba.fastjson.JSONObject;
 import com.eappcat.http.client.SimpleClient;
-
 import com.eappcat.http.client.es.vo.*;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;

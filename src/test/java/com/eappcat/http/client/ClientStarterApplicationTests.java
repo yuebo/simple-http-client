@@ -3,7 +3,6 @@ package com.eappcat.http.client;
 import com.alibaba.fastjson.JSONObject;
 import com.eappcat.http.client.es.DocumentRestClient;
 import com.eappcat.http.client.es.query.ExistsQuery;
-import com.eappcat.http.client.es.query.MatchAllQuery;
 import com.eappcat.http.client.es.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;

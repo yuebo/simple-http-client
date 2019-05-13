@@ -1,8 +1,8 @@
 package com.eappcat.http.client;
 
 import com.alibaba.fastjson.JSONObject;
-import okhttp3.*;
 import okhttp3.ResponseBody;
+import okhttp3.*;
 import org.apache.commons.beanutils.BeanMap;
 import org.springframework.beans.factory.config.BeanExpressionContext;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
