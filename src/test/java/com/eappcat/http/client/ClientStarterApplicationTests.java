@@ -1,10 +1,10 @@
 package com.eappcat.http.client;
 
 import com.alibaba.fastjson.JSONObject;
-import com.eappcat.http.client.es.ElasticSearchRestClient;
-import com.eappcat.http.client.es.vo.IndexConfig;
-import com.eappcat.http.client.es.vo.PageQuery;
-import com.eappcat.http.client.es.vo.SearchResult;
+import com.eappcat.http.client.es.DocumentRestClient;
+import com.eappcat.http.client.es.query.ExistsQuery;
+import com.eappcat.http.client.es.query.MatchAllQuery;
+import com.eappcat.http.client.es.vo.*;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Arrays;
 import java.util.Date;
 
 @RunWith(SpringRunner.class)
@@ -20,7 +21,7 @@ import java.util.Date;
 public class ClientStarterApplicationTests {
 
     @Autowired
-    ElasticSearchRestClient restClient;
+    DocumentRestClient restClient;
 
     @Test
     public void contextLoads() {
@@ -40,11 +41,14 @@ public class ClientStarterApplicationTests {
 
         JSONObject jsonObject=new JSONObject();
         jsonObject.put("size",3);
-        SearchResult<JSONObject> searchResult=restClient.searchScroll(config,new PageQuery(),jsonObject,JSONObject.class);
+        PageInfo pageInfo =new PageInfo();
+//        pageInfo.setSort(Arrays.asList(new Sort[]{new Sort("user","desc")}));
+//        jsonObject.put("sort",Arrays.asList(new Sort[]{new Sort("user.keyword",new Order("desc"))}));
+        SearchResult<JSONObject> searchResult=restClient.searchScroll(config, pageInfo,new QueryRequest(new ExistsQuery("create_date"),Arrays.asList(new Sort[]{new Sort().appendKeyword("user",new Order("desc"))}),3),JSONObject.class);
 
         log.info("{}",searchResult);
 
-        PageQuery next=new PageQuery();
+        PageInfo next=new PageInfo();
         next.setScrollId(searchResult.getScrollId());
         SearchResult<JSONObject> page2=restClient.nextScroll(next,JSONObject.class);
 
